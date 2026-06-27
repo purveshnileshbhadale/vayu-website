@@ -1,0 +1,38 @@
+# Byte-compiled
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Environment
+.env
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Config with secrets
+config/api_keys.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Vercel
+website/.vercel/
+
+# Logs
+*.log
