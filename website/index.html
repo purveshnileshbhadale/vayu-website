@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYU — AI Voice Assistant | Intelligent Desktop Companion</title>
+    <meta name="description" content="VAYU is a cutting-edge AI voice assistant with multi-provider AI, 3D holographic UI, screen vision, plugin system, vector memory, and full computer control. Download for Windows and macOS.">
+    <meta name="keywords" content="VAYU, AI assistant, voice assistant, Windows, macOS, open source, Gemini, AI desktop companion">
+    <meta name="author" content="Purvesh Nilesh Bhadale">
+    <meta property="og:title" content="VAYU — AI Voice Assistant">
+    <meta property="og:description" content="Your intelligent voice companion with 3D holographic UI, multi-provider AI, and full computer control.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0a0a1a">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #06060f;
+            --bg-secondary: #0a0a1a;
+            --bg-card: rgba(255,255,255,0.03);
+            --bg-card-hover: rgba(255,255,255,0.06);
+            --text-primary: #f0f0f5;
+            --text-secondary: #9090b0;
+            --text-muted: #606080;
+            --accent: #2563eb;
+            --accent-light: #60a5fa;
+            --accent-dark: #1d4ed8;
+            --purple: #7c3aed;
+            --purple-light: #a78bfa;
+            --green: #10b981;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(37,99,235,0.25);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-lg: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: #1e1e3a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2a4a; }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -40vh;
+            left: -20vw;
+            width: 140vw;
+            height: 140vh;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(37,99,235,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Navigation ─── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(6,6,15,0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s;
+        }
+
+        nav.scrolled {
+            border-color: rgba(37,99,235,0.15);
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -1px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .logo span { color: var(--accent-light); }
+
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-cta {
+            background: var(--accent) !important;
+            color: #fff !important;
+            padding: 0.5rem 1.2rem !important;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-dark) !important;
+            transform: translateY(-1px);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        /* ─── Hero ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(37,99,235,0.1);
+            color: var(--accent-light);
+            padding: 0.35rem 1rem;
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: 1px solid rgba(37,99,235,0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1.5px;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--accent-light), var(--purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 520px;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.9rem 2rem;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(37,99,235,0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .btn-github {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-github:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* ─── Hero Visual ─── */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .holographic-sphere {
+            width: 340px;
+            height: 340px;
+            position: relative;
+        }
+
+        .sphere-core {
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(37,99,235,0.15) 0%, rgba(124,58,237,0.08) 40%, transparent 70%);
+            position: absolute;
+            top: 0; left: 0;
+            box-shadow:
+                0 0 60px rgba(37,99,235,0.15),
+                inset 0 0 60px rgba(37,99,235,0.05);
+            animation: sphere-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes sphere-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 0.8; }
+        }
+
+        .sphere-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            border-radius: 50%;
+            border: 1.5px solid rgba(37,99,235,0.2);
+            transform-style: preserve-3d;
+            animation: spin-slow 12s linear infinite;
+        }
+
+        .sphere-ring:nth-child(2) {
+            width: 300px; height: 300px;
+            margin: -150px 0 0 -150px;
+            border-color: rgba(37,99,235,0.15);
+        }
+
+        .sphere-ring:nth-child(3) {
+            width: 260px; height: 260px;
+            margin: -130px 0 0 -130px;
+            border-color: rgba(124,58,237,0.15);
+            animation-direction: reverse;
+            animation-duration: 15s;
+        }
+
+        .sphere-ring:nth-child(4) {
+            width: 220px; height: 220px;
+            margin: -110px 0 0 -110px;
+            border-color: rgba(37,99,235,0.1);
+            animation-duration: 10s;
+        }
+
+        @keyframes spin-slow {
+            from { transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg); }
+        }
+
+        .sphere-ring.tilted:nth-child(3) {
+            animation-name: spin-tilted;
+        }
+
+        @keyframes spin-tilted {
+            from { transform: translate(-50%, -50%) rotateX(55deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(55deg) rotateZ(360deg); }
+        }
+
+        .sphere-orbit-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            top: 50%; left: 50%;
+            margin: -3px 0 0 -3px;
+            box-shadow: 0 0 10px var(--accent-light);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .hero-stat .num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .hero-stat .label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* ─── Section Shared ─── */
+        section { padding: 6rem 0; }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3.5rem;
+            font-size: 1.05rem;
+        }
+
+        /* ─── About ─── */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .about-text p {
+            color: var(--text-secondary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .about-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .about-stat:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .about-stat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .about-stat .desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        /* ─── Architecture ─── */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .arch-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .arch-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-3px);
+        }
+
+        .arch-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(37,99,235,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .arch-card h4 {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .arch-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .arch-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .arch-flow-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            background: rgba(37,99,235,0.06);
+            border: 1px solid rgba(37,99,235,0.1);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .arch-flow-step.active {
+            background: rgba(37,99,235,0.12);
+            border-color: rgba(37,99,235,0.3);
+            color: var(--accent-light);
+        }
+
+        .arch-flow-arrow {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* ─── Features ─── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(37,99,235,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #fff;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-top: 0.75rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(37,99,235,0.08);
+            color: var(--accent-light);
+            padding: 0.15rem 0.55rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* ─── Download ─── */
+        #download {
+            background: linear-gradient(180deg, transparent 0%, rgba(37,99,235,0.03) 50%, transparent 100%);
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .download-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-3px);
+        }
+
+        .download-card.recommended {
+            border-color: var(--accent);
+            background: rgba(37,99,235,0.04);
+        }
+
+        .download-card.recommended::before {
+            content: 'Recommended';
+            position: absolute;
+            top: 1rem;
+            right: -2rem;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            color: #fff;
+            padding: 0.2rem 2.5rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+
+        .download-os-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .download-card h3 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .download-card .os-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 1rem 2.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .download-btn.win {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+        }
+
+        .download-btn.win:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(37,99,235,0.4);
+        }
+
+        .download-btn.mac {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+        }
+
+        .download-btn.mac:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99,102,241,0.4);
+        }
+
+        .download-btn .size-badge {
+            font-size: 0.75rem;
+            font-weight: 400;
+            opacity: 0.75;
+        }
+
+        .download-deps {
+            margin-top: 1.5rem;
+            text-align: left;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .download-deps h4 {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .dep-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .dep-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .dep-item .dep-version {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .dep-item.required {
+            border-color: rgba(37,99,235,0.2);
+            background: rgba(37,99,235,0.06);
+        }
+
+        .dep-item.optional {
+            border-color: rgba(124,58,237,0.15);
+            background: rgba(124,58,237,0.04);
+        }
+
+        .dep-tag {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            margin-left: 0.25rem;
+        }
+
+        .dep-tag.req {
+            background: rgba(37,99,235,0.15);
+            color: var(--accent-light);
+        }
+
+        .dep-tag.opt {
+            background: rgba(124,58,237,0.15);
+            color: var(--purple-light);
+        }
+
+        /* ─── Tech Stack ─── */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .tech-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .tech-item .tech-name {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .tech-item .tech-use {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ─── Creator Flip Card ─── */
+        .creator-flip-wrap {
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .creator-flip-card {
+            width: 360px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .creator-flip-card:hover {
+            transform: rotateY(180deg);
+        }
+
+        .creator-flip-card .creator-front,
+        .creator-flip-card .creator-back {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .creator-flip-card .creator-front {
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08));
+            border: 1px solid rgba(37,99,235,0.15);
+        }
+
+        .creator-flip-card .creator-back {
+            background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
+            border: 1px solid rgba(124,58,237,0.2);
+            transform: rotateY(180deg);
+        }
+
+        .creator-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 0 30px rgba(37,99,235,0.3);
+        }
+
+        .creator-front h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .creator-role {
+            color: var(--accent-light);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .creator-tagline {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .creator-flip-hint {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            animation: pulse-hint 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-hint {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .creator-back-content {
+            width: 100%;
+        }
+
+        .creator-back h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        .creator-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.9rem;
+        }
+
+        .creator-contact-icon {
+            flex-shrink: 0;
+            width: 28px;
+            text-align: center;
+        }
+
+        .creator-contact-item a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            word-break: break-all;
+        }
+
+        .creator-contact-item a:hover {
+            color: var(--accent-light);
+        }
+
+        .creator-contact-item span:last-child {
+            color: var(--text-secondary);
+        }
+
+        .creator-copyright {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-bottom a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .footer-social a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover {
+            color: var(--text-primary);
+        }
+
+        /* ─── Setup Steps ─── */
+        .setup-steps {
+            margin-top: 1.25rem;
+            text-align: left;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .steps-title {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .step:last-child { margin-bottom: 0; }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .step-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .step-content strong {
+            display: block;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .step-content code {
+            color: var(--accent-light);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            background: rgba(37,99,235,0.08);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+        }
+
+        /* ─── Terminal Box ─── */
+        .terminal-box {
+            margin-top: 1.25rem;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #0d0d1f;
+            border: 1px solid rgba(255,255,255,0.06);
+            text-align: left;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-title {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .terminal-body {
+            padding: 0.85rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .terminal-prompt {
+            color: var(--green);
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        /* ─── Mobile ─── */
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { margin: 0 auto 2rem; }
+            .btn-group { justify-content: center; }
+            .hero-stats { justify-content: center; }
+
+            .hero-visual { display: none; }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-brand p { margin: 0 auto; }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            section { padding: 4rem 0; }
+            .section-title { font-size: 1.8rem; }
+
+            .arch-flow {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .arch-flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .mobile-toggle { display: block; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0; right: 0;
+                background: rgba(6,6,15,0.95);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+                gap: 0.25rem;
+            }
+
+            .nav-links.open { display: flex; }
+            .nav-links a { width: 100%; text-align: center; }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .about-stats { grid-template-columns: 1fr 1fr; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-stats { gap: 1.5rem; }
+            .hero-stats { flex-wrap: wrap; }
+            .container { padding: 0 1.25rem; }
+        }
+
+        /* ─── Animations ─── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-d1 { transition-delay: 0.1s; }
+        .fade-in-d2 { transition-delay: 0.2s; }
+        .fade-in-d3 { transition-delay: 0.3s; }
+        .fade-in-d4 { transition-delay: 0.4s; }
+        .fade-in-d5 { transition-delay: 0.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float-anim {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="bg-glow"></div>
+
+<!-- ─── Navigation ─── -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <a href="#" class="logo">
+            <div class="logo-mark">V</div>
+            <span>V</span>AYU
+        </a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="#about">About</a>
+            <a href="#features">Features</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#creator">Creator</a>
+            <a href="#download" class="nav-cta">Download</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-grid">
+            <div class="hero-content fade-in visible">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    v1.0 — AI-Powered Voice Assistant
+                </div>
+                <h1>Meet <span class="gradient-text">VAYU</span><br>Your Desktop AI Companion</h1>
+                <p>
+                    A cutting-edge voice assistant that understands natural speech, sees your screen,
+                    controls your computer, and helps you get things done — completely hands-free.
+                    Powered by Gemini, OpenRouter &amp; Groq.
+                </p>
+                <div class="btn-group">
+                    <a href="#download" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download VAYU
+                    </a>
+                    <a href="#features" class="btn btn-secondary">Explore Features</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="num">30+</div>
+                        <div class="label">Voice Commands</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">3</div>
+                        <div class="label">AI Providers</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">100%</div>
+                        <div class="label">Free &amp; Open Source</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual fade-in visible fade-in-d2">
+                <div class="holographic-sphere float-anim">
+                    <div class="sphere-core"></div>
+                    <div class="sphere-ring" style="width:320px;height:320px;margin:-160px 0 0 -160px;"></div>
+                    <div class="sphere-ring tilted" style="width:280px;height:280px;margin:-140px 0 0 -140px;border-color:rgba(124,58,237,0.2);"></div>
+                    <div class="sphere-ring" style="width:240px;height:240px;margin:-120px 0 0 -120px;border-color:rgba(37,99,235,0.12);"></div>
+                    <div class="sphere-ring" style="width:200px;height:200px;margin:-100px 0 0 -100px;border-color:rgba(124,58,237,0.1);animation-duration:8s;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── About ─── -->
+<section id="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text fade-in">
+                <span class="section-label">About</span>
+                <h2>What is <span style="color:var(--accent-light)">VAYU</span>?</h2>
+                <p>
+                    VAYU is a next-generation AI voice assistant that runs natively on your desktop.
+                    Unlike cloud-only assistants, VAYU integrates directly with your operating system — controlling
+                    applications, managing files, browsing the web, and executing code — all through natural voice commands.
+                </p>
+                <p>
+                    Built with a modular plugin architecture and multi-provider AI fallback (Gemini &rarr; OpenRouter &rarr; Groq),
+                    VAYU ensures you always have a responsive, intelligent assistant at your command — even if one AI provider
+                    goes down.
+                </p>
+                <p>
+                    Created by <strong style="color:var(--text-primary)">Purvesh Nilesh Bhadale</strong> —
+                    independently developed, maintained, and freely available for everyone.
+                </p>
+            </div>
+            <div class="about-stats fade-in fade-in-d2">
+                <div class="about-stat">
+                    <div class="num">15+</div>
+                    <div class="desc">AI-Powered Tools</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num">34</div>
+                    <div class="desc">Python Modules</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num">3</div>
+                    <div class="desc">TTS Backends</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num">~50 MB</div>
+                    <div class="desc">Binary Size</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Features ─── -->
+<section id="features">
+    <div class="container">
+        <span class="section-label" style="display:block;text-align:center;">Capabilities</span>
+        <h2 class="section-title">Everything at Your Command</h2>
+        <p class="section-subtitle">VAYU packs a comprehensive set of tools — all accessible through natural voice interaction.</p>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🎤</div>
+                <h3>Multi-Engine Voice</h3>
+                <p>Voice Activity Detection (VAD) with four TTS backends — edge-tts, SAPI5, Groq AI, and pyttsx3. Natural wake-word free interaction.</p>
+                <div class="feature-tags">
+                    <span class="tag">VAD</span>
+                    <span class="tag">edge-tts</span>
+                    <span class="tag">SAPI5</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d1">
+                <div class="feature-icon">🧠</div>
+                <h3>Multi-Provider AI Brain</h3>
+                <p>Gemini 2.5 Flash for primary conversation with automatic fallback to OpenRouter and Groq. Seamless failover — you never notice a hiccup.</p>
+                <div class="feature-tags">
+                    <span class="tag">Gemini</span>
+                    <span class="tag">OpenRouter</span>
+                    <span class="tag">Groq</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d2">
+                <div class="feature-icon">🖥️</div>
+                <h3>Full Computer Control</h3>
+                <p>Launch apps, manage windows (list/focus/move/resize), adjust volume, control media keys, send keystrokes, and more — all hands-free.</p>
+                <div class="feature-tags">
+                    <span class="tag">Window Manager</span>
+                    <span class="tag">Media Keys</span>
+                    <span class="tag">CMD</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">📸</div>
+                <h3>Screen Vision &amp; OCR</h3>
+                <p>VAYU sees your screen. AI-powered screen description via OpenRouter/Groq, text OCR via Tesseract, and live webcam capture.</p>
+                <div class="feature-tags">
+                    <span class="tag">OCR</span>
+                    <span class="tag">Screen Capture</span>
+                    <span class="tag">Webcam</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d1">
+                <div class="feature-icon">🌐</div>
+                <h3>Web Browsing</h3>
+                <p>Search the web, navigate sites, fill forms, click elements — VAYU drives your browser through natural language commands.</p>
+                <div class="feature-tags">
+                    <span class="tag">Browser Control</span>
+                    <span class="tag">Web Search</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d2">
+                <div class="feature-icon">📄</div>
+                <h3>Universal File Processor</h3>
+                <p>Read, summarize, convert, and build files: PDFs, Word docs, PowerPoint presentations, HTML pages, images, audio, video — any format.</p>
+                <div class="feature-tags">
+                    <span class="tag">PDF</span>
+                    <span class="tag">DOCX</span>
+                    <span class="tag">PPTX</span>
+                    <span class="tag">Images</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">💾</div>
+                <h3>Vector Memory</h3>
+                <p>TF-IDF semantic search across all memories and conversations. VAYU remembers your preferences, past context, and important details.</p>
+                <div class="feature-tags">
+                    <span class="tag">Semantic Search</span>
+                    <span class="tag">Context-aware</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d1">
+                <div class="feature-icon">🔌</div>
+                <h3>Plugin System</h3>
+                <p>Extend VAYU by dropping .py files into the plugins/ folder. Each plugin registers its own tools with zero changes to the core code.</p>
+                <div class="feature-tags">
+                    <span class="tag">Pluggable</span>
+                    <span class="tag">Extensible</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d2">
+                <div class="feature-icon">🔧</div>
+                <h3>Code Assistant</h3>
+                <p>Write, explain, review, fix, and execute code in any language. Your AI pair programmer that works with your development workflow.</p>
+                <div class="feature-tags">
+                    <span class="tag">Code Gen</span>
+                    <span class="tag">Debug</span>
+                    <span class="tag">Review</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">⚡</div>
+                <h3>Power &amp; System Control</h3>
+                <p>Shutdown, restart, sleep, lock, hibernate your PC. Manage Wi-Fi and Bluetooth, set timers and alarms, send emails with attachments.</p>
+                <div class="feature-tags">
+                    <span class="tag">Power Mgmt</span>
+                    <span class="tag">Wi-Fi/BT</span>
+                    <span class="tag">Email</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d1">
+                <div class="feature-icon">🎮</div>
+                <h3>Game &amp; App Integration</h3>
+                <p>Launch games, check Steam/Epic updates, control YouTube playback, find flights, set reminders and calendar notes.</p>
+                <div class="feature-tags">
+                    <span class="tag">Launcher</span>
+                    <span class="tag">YouTube</span>
+                    <span class="tag">Calendar</span>
+                </div>
+            </div>
+            <div class="feature-card fade-in fade-in-d2">
+                <div class="feature-icon">✨</div>
+                <h3>3D Holographic HUD</h3>
+                <p>A real-time 3D wireframe globe with orbital rings, core glow, floating data labels, animated starfield, and dynamic state-reactive color shifts.</p>
+                <div class="feature-tags">
+                    <span class="tag">PyQt6</span>
+                    <span class="tag">QPainter</span>
+                    <span class="tag">Real-time</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Architecture ─── -->
+<section id="architecture">
+    <div class="container">
+        <span class="section-label" style="display:block;text-align:center;">Under The Hood</span>
+        <h2 class="section-title">Architecture</h2>
+        <p class="section-subtitle">Built with a clean, modular design that's easy to extend and maintain.</p>
+        <div class="arch-grid">
+            <div class="arch-card fade-in">
+                <div class="arch-icon">🎙️</div>
+                <h4>Voice Layer</h4>
+                <p>Audio capture, VAD, multi-backend TTS (edge-tts, SAPI5, Groq, pyttsx3)</p>
+            </div>
+            <div class="arch-card fade-in fade-in-d1">
+                <div class="arch-icon">🧠</div>
+                <h4>AI Brain</h4>
+                <p>Gemini &rarr; OpenRouter &rarr; Groq fallback chain with configurable providers</p>
+            </div>
+            <div class="arch-card fade-in fade-in-d2">
+                <div class="arch-icon">⚙️</div>
+                <h4>Action Engine</h4>
+                <p>30+ tool modules dispatched by intent — from file ops to system control</p>
+            </div>
+            <div class="arch-card fade-in fade-in-d3">
+                <div class="arch-icon">🔌</div>
+                <h4>Plugin System</h4>
+                <p>Auto-discovers plugins/ directory — each .py file registers its own tools</p>
+            </div>
+            <div class="arch-card fade-in fade-in-d4">
+                <div class="arch-icon">👁️</div>
+                <h4>Vision Module</h4>
+                <p>Screen capture, OCR, webcam, AI image description</p>
+            </div>
+            <div class="arch-card fade-in fade-in-d5">
+                <div class="arch-icon">💾</div>
+                <h4>Memory Store</h4>
+                <p>TF-IDF vector search over conversations and memories (zero ML deps)</p>
+            </div>
+        </div>
+
+        <div class="arch-flow fade-in">
+            <span class="arch-flow-step active">🎤 Voice Input</span>
+            <span class="arch-flow-arrow">&rarr;</span>
+            <span class="arch-flow-step active">🧠 AI Brain</span>
+            <span class="arch-flow-arrow">&rarr;</span>
+            <span class="arch-flow-step active">🤖 Intent Router</span>
+            <span class="arch-flow-arrow">&rarr;</span>
+            <span class="arch-flow-step active">⚙️ Action Tool</span>
+            <span class="arch-flow-arrow">&rarr;</span>
+            <span class="arch-flow-step active">🗣️ Voice Output</span>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Tech Stack ─── -->
+<section>
+    <div class="container">
+        <span class="section-label" style="display:block;text-align:center;">Powered By</span>
+        <h2 class="section-title">Technology Stack</h2>
+        <p class="section-subtitle">Built with modern frameworks and free-tier AI services.</p>
+        <div class="tech-grid">
+            <div class="tech-item fade-in">
+                <div class="tech-name">Python 3.10+</div>
+                <div class="tech-use">Core Language</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d1">
+                <div class="tech-name">PyQt6</div>
+                <div class="tech-use">Desktop GUI</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d2">
+                <div class="tech-name">Google Gemini</div>
+                <div class="tech-use">Primary AI</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d3">
+                <div class="tech-name">OpenRouter</div>
+                <div class="tech-use">AI Fallback</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d4">
+                <div class="tech-name">Groq</div>
+                <div class="tech-use">AI + Whisper</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d5">
+                <div class="tech-name">edge-tts</div>
+                <div class="tech-use">Voice Output</div>
+            </div>
+            <div class="tech-item fade-in">
+                <div class="tech-name">Pillow</div>
+                <div class="tech-use">Image Processing</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d1">
+                <div class="tech-name">PyInstaller</div>
+                <div class="tech-use">Packaging</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d2">
+                <div class="tech-name">pytesseract</div>
+                <div class="tech-use">OCR Engine</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d3">
+                <div class="tech-name">numpy</div>
+                <div class="tech-use">Math &amp; Audio</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d4">
+                <div class="tech-name">pyaudio</div>
+                <div class="tech-use">Audio Capture</div>
+            </div>
+            <div class="tech-item fade-in fade-in-d5">
+                <div class="tech-name">PyPDF2</div>
+                <div class="tech-use">PDF Processing</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Download ─── -->
+<section id="download">
+    <div class="container">
+        <span class="section-label" style="display:block;text-align:center;">Get Started</span>
+        <h2 class="section-title">Download VAYU</h2>
+        <p class="section-subtitle">
+            Choose your platform. VAYU is completely free — no subscriptions, no hidden costs.
+        </p>
+
+        <div class="download-grid">
+            <!-- Windows -->
+            <div class="download-card recommended fade-in">
+                <div class="download-os-icon">🪟</div>
+                <h3>Windows</h3>
+                <p class="os-desc">Portable ZIP for Windows 10 &amp; 11 (64-bit)</p>
+                <a href="downloads/VAYU.zip" class="download-btn win">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download for Windows
+                    <span class="size-badge">~15 MB</span>
+                </a>
+
+                <div class="download-deps">
+                    <h4>Requirements</h4>
+                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">
+                        Requires <strong>Python 3.10+</strong> installed. The ZIP includes all source files — run <code>start_vayu.bat</code> to auto-install dependencies and launch.
+                    </p>
+
+                    <div class="setup-steps">
+                        <h4 class="steps-title">Setup Steps</h4>
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <strong>Download &amp; Extract</strong>
+                                <p>Click the <strong>"Download for Windows"</strong> button above, then extract the ZIP anywhere on your PC.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <strong>Run VAYU</strong>
+                                <p>Double-click <code>start_vayu.bat</code> — it will automatically install Python dependencies and launch VAYU. On first run, you'll be prompted to enter your API keys.</p>
+                                <div class="terminal-box" style="margin-top:0.5rem;">
+                                    <div class="terminal-header">
+                                        <span class="terminal-dot" style="background:#ff5f57;"></span>
+                                        <span class="terminal-dot" style="background:#febc2e;"></span>
+                                        <span class="terminal-dot" style="background:#28c840;"></span>
+                                        <span class="terminal-title">config/api_keys.json</span>
+                                    </div>
+                                    <div class="terminal-body" style="font-size:0.72rem;line-height:1.6;">
+{<br>
+  <span style="color:#a78bfa;">"gemini_api_key"</span>: <span style="color:#60a5fa;">"YOUR_GEMINI_KEY"</span>,<br>
+  <span style="color:#a78bfa;">"openrouter_api_key"</span>: <span style="color:#60a5fa;">"YOUR_OPENROUTER_KEY"</span>,<br>
+  <span style="color:#a78bfa;">"groq_api_key"</span>: <span style="color:#60a5fa;">"YOUR_GROQ_KEY"</span>,<br>
+  <span style="color:#a78bfa;">"os_system"</span>: <span style="color:#60a5fa;">"windows"</span><br>
+}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <strong>Run VAYU</strong>
+                                <p>Double-click <code>start_vayu.bat</code> — it installs dependencies and launches VAYU automatically.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- macOS -->
+            <div class="download-card fade-in fade-in-d2">
+                <div class="download-os-icon">🍎</div>
+                <h3>macOS</h3>
+                <p class="os-desc">Source code — double-click <code>VAYU.command</code> to run</p>
+                <a href="downloads/VAYU.dmg" class="download-btn mac">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Source Code
+                    <span class="size-badge">~2 MB</span>
+                </a>
+                <div class="download-deps">
+                    <h4>Dependencies</h4>
+                    <div class="dep-list">
+                        <span class="dep-item required">
+                            Python 3.10+
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            PyQt6
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            google-genai
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            portaudio
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            pillow
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            numpy
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item required">
+                            edge-tts
+                            <span class="dep-tag req">req</span>
+                        </span>
+                        <span class="dep-item optional">
+                            tesseract
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            opencv-python
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            PyPDF2
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            python-pptx
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            python-docx
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            PyAutoGUI
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                        <span class="dep-item optional">
+                            Quartz
+                            <span class="dep-tag opt">opt</span>
+                        </span>
+                    </div>
+                    <p style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-muted);">
+                        <span class="dep-tag req" style="margin-right:0.25rem;">req</span> Required &nbsp;
+                        <span class="dep-tag opt" style="margin-right:0.25rem;">opt</span> Optional
+                        &nbsp;— Install via <code style="color:var(--text-secondary);">brew</code> or <code style="color:var(--text-secondary);">pip</code>.
+                    </p>
+
+                    <div class="setup-steps">
+                        <h4 class="steps-title">Setup Steps</h4>
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <strong>Download &amp; Extract Source</strong>
+                                <p>Click <strong>"Download Source Code"</strong> above to get the source ZIP. Extract it to a folder.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <strong>Install Python 3.10+</strong>
+                                <p>Via <strong>Homebrew</strong>: <code style="color:var(--accent-light);">brew install python@3.14</code> &nbsp;or&nbsp; <a href="https://python.org" target="_blank" style="color:var(--accent-light);">python.org</a></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <strong>Install PortAudio</strong>
+                                <p>Required for mic: <code style="color:var(--accent-light);">brew install portaudio</code></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <strong>Install Dependencies</strong>
+                                <p>Open <strong>Terminal</strong>, <code>cd</code> to the extracted folder, then run:</p>
+                                <div class="terminal-box" style="margin-top:0.5rem;">
+                                    <div class="terminal-header">
+                                        <span class="terminal-dot" style="background:#ff5f57;"></span>
+                                        <span class="terminal-dot" style="background:#febc2e;"></span>
+                                        <span class="terminal-dot" style="background:#28c840;"></span>
+                                        <span class="terminal-title">Terminal</span>
+                                    </div>
+                                    <div class="terminal-body">
+                                        <span class="terminal-prompt">$</span> pip install -r requirements.txt
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">5</div>
+                            <div class="step-content">
+                                <strong>Run VAYU</strong>
+                                <p>Double-click <strong><code>VAYU.command</code></strong> in the extracted folder &rarr; Terminal opens and VAYU starts automatically.</p>
+                                <div class="terminal-box" style="margin-top:0.5rem;">
+                                    <div class="terminal-header">
+                                        <span class="terminal-dot" style="background:#ff5f57;"></span>
+                                        <span class="terminal-dot" style="background:#febc2e;"></span>
+                                        <span class="terminal-dot" style="background:#28c840;"></span>
+                                        <span class="terminal-title">Or via Terminal</span>
+                                    </div>
+                                    <div class="terminal-body">
+                                        <span class="terminal-prompt">$</span> python main.py
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">6</div>
+                            <div class="step-content">
+                                <strong>Enter API Keys in the UI</strong>
+                                <p>On first launch, VAYU shows a <strong>Settings</strong> dialog. Paste your Gemini, OpenRouter, and Groq API keys there &rarr; click <strong>Save</strong>. No manual file editing needed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Creator Card ─── -->
+<section id="creator">
+    <div class="container">
+        <span class="section-label" style="display:block;text-align:center;">Creator</span>
+        <h2 class="section-title">Built by</h2>
+        <p class="section-subtitle">One developer, one vision — an intelligent voice assistant for everyone.</p>
+        <div class="creator-flip-wrap">
+            <div class="creator-flip-card" id="flipCard">
+                <div class="creator-front">
+                    <div class="creator-avatar">PB</div>
+                    <h3>Purvesh Nilesh Bhadale</h3>
+                    <p class="creator-role">Creator &amp; Developer</p>
+                    <p class="creator-tagline">Turning voice into action — VAYU is his vision of an AI companion that truly understands you.</p>
+                    <div class="creator-flip-hint">Hover or tap to flip &rarr;</div>
+                </div>
+                <div class="creator-back">
+                    <div class="creator-back-content">
+                        <h3>Let's Connect</h3>
+                        <div class="creator-contact-item">
+                            <span class="creator-contact-icon">📞</span>
+                            <a href="tel:+8421919113">+91 8421919113</a>
+                        </div>
+                        <div class="creator-contact-item">
+                            <span class="creator-contact-icon">✉️</span>
+                            <a href="mailto:purveshnileshbhadale@gmail.com">purveshnileshbhadale@gmail.com</a>
+                        </div>
+                        <div class="creator-contact-item">
+                            <span class="creator-contact-icon">🐙</span>
+                            <a href="https://github.com/purveshnileshbhadale" target="_blank">github.com/purveshnileshbhadale</a>
+                        </div>
+                        <div class="creator-contact-item">
+                            <span class="creator-contact-icon">📍</span>
+                            <span>India</span>
+                        </div>
+                        <p class="creator-copyright">&copy; 2026 Purvesh Nilesh Bhadale. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <div class="logo-mark">V</div>
+                    <span>V</span>AYU
+                </a>
+                <p>An intelligent AI voice assistant with 3D holographic UI, multi-provider AI, plugin system, screen vision, vector memory, and full computer control.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#download">Download</a>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <a href="mailto:purveshnileshbhadale@gmail.com">Email</a>
+                <a href="tel:+8421919113">Phone</a>
+                <a href="https://github.com/purvesh-bhadale" target="_blank">GitHub</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 <strong>Purvesh Nilesh Bhadale</strong>. All rights reserved.</span>
+            <div class="footer-social">
+                <a href="mailto:purveshnileshbhadale@gmail.com">Contact</a>
+                <span style="color:var(--text-muted);">|</span>
+                <span>Built with passion in India</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // ─── Mobile Toggle ───
+    const toggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    toggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('open');
+        });
+    });
+
+    // ─── Navbar scroll effect ───
+    const navbar = document.getElementById('navbar');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // ─── Fade-in on scroll ───
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+
+</body>
+</html>
